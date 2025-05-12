@@ -4,20 +4,46 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
 import time
 import pandas as pd
 from datetime import datetime, timedelta
 
 
 def get_options():
-    my_options = webdriver.ChromeOptions()
-    my_options.add_argument("--disable-popup-blocking") #禁用彈出攔截
-    my_options.add_argument("--disable-notifications")
-    # my_options.add_argument("--incognito")#取消通知
-    # my_options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
-    my_options.add_argument("--start-maximized") 
-    my_options.add_argument("--lang=en-US")
-    return my_options
+    options = Options()
+    # Optional: headless mode — but more detectable
+    # options.add_argument("--headless")  
+
+    # 1. Pretend to be a real browser
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+    # 2. Start maximized like a real user
+    options.add_argument("--start-maximized")
+
+    # 3. Disable automation flags (important)
+    options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_experimental_option("useAutomationExtension", False)
+
+    # 4. Disable headless-specific features
+    options.add_argument("--disable-blink-features=AutomationControlled")
+
+    # 5. Enable JavaScript
+    # (enabled by default, but keep in mind some frameworks need this to function)
+
+    # 6. Use real window size
+    options.add_argument("--window-size=1920,1080")
+
+    # 7. Optional: Disable extensions for simplicity
+    options.add_argument("--disable-extensions")
+
+    # 8. Optional: Disable GPU if not needed
+    options.add_argument("--disable-gpu")
+
+    # 9. Optional: Avoid sandboxing (some servers detect this too)
+    options.add_argument("--no-sandbox")
+    return options
+
 
 def get_date_string():
     today=datetime.today()
@@ -37,11 +63,27 @@ def get_date_string():
     return past_formatted+' - '+formatted
     # Apr 14, 2024 - Apr 14, 2025
 
+
+
+def anti_bot(driver):
+     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
+  "source": """
+    Object.defineProperty(navigator, 'webdriver', {
+      get: () => undefined
+    })
+  """
+})
+     
+# when a website checks: navigator.webdriver==True ?
+# It will return undefined — just like a real human browser.
+
+
 def get():
     path='./utils/chromedriver'
     service = Service(path) 
     # service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=get_options())
+    anti_bot(driver)
     # driver.get('https://www.google.com/?hl=en')
     driver.get("https://finance.yahoo.com/quote/TSLA/")
     time.sleep(2)
