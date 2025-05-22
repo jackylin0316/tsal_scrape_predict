@@ -96,3 +96,70 @@ def today_price():
     y_pred_real = y_scaler.inverse_transform(y_pred_scaled)
 
     return y_pred_real
+
+
+
+# Here's code for using multiple features
+# df=pd.read_csv('./utils/tsla_y.csv')
+# df=df[::-1]
+# df=df.reset_index(drop=True)
+# def change(s):
+#     return float(s.replace(',', ''))
+# df['Volume']=df['Volume'].apply(change)
+# df.info()
+# data=df[df.columns[1:]]
+# data
+# train_data=np.array(data[:-60])
+# test_data=np.array(data[-60:])
+# train_data=train_data.reshape(-1,6)
+# test_data=test_data.reshape(-1,6)
+# adj_data=df['Adj Close']
+# adj_data=np.array(adj_data)
+# adj_data=adj_data.reshape(-1,1)
+# adj_data.shape
+# from sklearn.preprocessing import StandardScaler
+# # (n_samples, n_features)
+# scaler=StandardScaler()
+# adj_scaler=StandardScaler()
+# scaler.fit(train_data)
+# adj_scaler.fit(adj_data)
+# scaled_adj_data=adj_scaler.transform(adj_data)
+# scaled_train=scaler.transform(train_data)
+# scaled_test=scaler.transform(test_data)
+# X_train=[]
+# y_train=[]
+# for i in range(60, len(scaled_train)):
+#     X_train.append(scaled_train[i-60:i])
+#     y_train.append(scaled_adj_data[i])
+# X_train=np.array(X_train)
+# y_train=np.array(y_train)
+# X_train.shape
+# model = Sequential()
+# model.add(Bidirectional(LSTM(128, return_sequences=True), input_shape=(X_train.shape[1], X_train.shape[2])))
+# model.add(Dropout(0.3))
+# model.add(BatchNormalization())
+
+# model.add(Bidirectional(LSTM(64, return_sequences=True)))
+# model.add(Dropout(0.2))
+# model.add(BatchNormalization())
+
+# model.add(LSTM(32))
+# model.add(Dropout(0.2))
+
+# model.add(Dense(1))  # final output: predicted Adj Close
+
+# model.compile(loss='mean_squared_error', optimizer='adam')
+# model.summary()
+# history = model.fit(
+#     X_train, y_train,
+#     # validation_data=(X_val, y_val),  # ✅ Required for val_loss
+#     epochs=20,
+#     batch_size=32,
+#     # callbacks=[early_stop, checkpoint],
+#     verbose=1
+# )
+# scaled_test=scaled_test.reshape(1, scaled_test.shape[0], scaled_test.shape[1])
+# scaled_test.shape
+
+# prediction=model.predict(scaled_test)
+# adj_scaler.inverse_transform(prediction)
